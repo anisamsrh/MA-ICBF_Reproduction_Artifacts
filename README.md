@@ -22,6 +22,8 @@
   <div align="center"></div>
 </p>
 
+[ICRA'25] Decentralized Safe and Scalable Multi-Agent Control Under Limited Actuation
+
 <p align="center">
     <img src="./trajectory/maze_2.gif" alt="First GIF" width="400" />
     <img src="./trajectory/ours_trajectory_16_agents_empty_itr_06_fps_10_trailing_random.gif" alt="Second GIF" width="400" />
