@@ -305,10 +305,18 @@ def main():
                 collision_per_steps[t] = np.maximum(collision_per_steps[t], current_collision)
             u_values.append(u_np.copy())
 
-            agents_status = np.any(collision_per_steps, axis=0)
-            total_safe_agents = np.sum(agents_status == 0)
-            ca_percentage = (total_safe_agents / args.num_agents) * 100
-            print(f"Collision Avoidance (%) : {ca_percentage}")
+        agents_status = np.any(collision_per_steps, axis=0)
+        total_safe_agents = np.sum(agents_status == 0)
+        ca_percentage = (total_safe_agents / args.num_agents) * 100
+
+        llimit = 0.2 #[-, +]
+        alimit = 12.0 #[-, +]
+        linear_magnitudes = np.linalg.norm(u_np[:, :2], axis=1)
+        linear_violation = linear_magnitudes > llimit
+        angular_violation = np.abs(u_np[:, 2]) > alimit
+        total_violation_mask = np.logical_or(linear_violation, angular_violation)
+        num_violations = np.sum(total_violation_mask)
+
         safety_reward.append(np.mean(safety_info))
         dist_reward.append(np.mean((np.linalg.norm(
             s_np[:, :3] - s_ref_np[:, :3], axis=1) < 1.5).astype(np.float32) * 10))
