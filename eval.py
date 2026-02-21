@@ -499,6 +499,8 @@ def main():
         traj_dict['ours'].append(np.concatenate(s_traj, axis=0))
         end_time = time.time()
 
+        if not os.path.exists('csv_data'):
+            os.makedirs('csv_data')
         steps_taken_df = pd.DataFrame(steps_taken_by_agents, columns=['Evaluation Step {}'.format(i+1) for i in range(config.EVALUATE_STEPS)])
         steps_taken_df.to_csv('csv_data/steps_taken_by_agents.csv', index_label="Agent")
         print("Steps taken by agents saved to 'steps_taken_by_agents.csv'")
