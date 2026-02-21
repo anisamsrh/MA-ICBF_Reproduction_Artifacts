@@ -622,7 +622,7 @@ def main():
         df = pd.DataFrame([mydata])
         if not os.path.exists('repo_data'):
                 os.makedirs('repo_data')
-        if not os.path.exists(f'repo_data/{args.env}_{args.num_agents}_agents.csv'):
+        if istep == 0:
             df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', index=False)
         else:   
             df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', mode='a', header=False, index=False)
