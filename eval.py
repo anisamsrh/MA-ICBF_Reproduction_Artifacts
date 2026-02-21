@@ -224,6 +224,9 @@ def main():
         deadlock_info = np.zeros(args.num_agents, dtype=np.float32) 
 
         print(scene.steps)
+
+        collision_per_steps = np.zeros((scene.steps, args.num_agents))
+
         for t in range(scene.steps):
             s_ref_np = np.concatenate(
                 [scene.waypoints[t], np.zeros((args.num_agents, 5))], axis=1)
@@ -297,7 +300,15 @@ def main():
                 deadlock_tracking[current_step_index] = deadlock_mask.astype(int)  # Track deadlocks
 
                 current_step_index += 1  # Move to the next global step
+
+                current_collision = np.any(collisions, axis=1)
+                collision_per_steps[t] = np.maximum(collision_per_steps[t], current_collision)
             u_values.append(u_np.copy())
+
+            agents_status = np.any(collision_per_steps, axis=0)
+            total_safe_agents = np.sum(agents_status == 0)
+            ca_percentage = (total_safe_agents / args.num_agents) * 100
+            print(f"Collision Avoidance (%) : {ca_percentage}")
         safety_reward.append(np.mean(safety_info))
         dist_reward.append(np.mean((np.linalg.norm(
             s_np[:, :3] - s_ref_np[:, :3], axis=1) < 1.5).astype(np.float32) * 10))
