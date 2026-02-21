@@ -610,6 +610,22 @@ def main():
         
         print('Evaluation Step: {} | {}, Time: {:.4f}, Deadlocked Agents: {:.4f}'.format(
             istep + 1, config.EVALUATE_STEPS, end_time - start_time, np.mean(deadlock_info)))
+
+        mydata = {
+            'evaluation_step': istep + 1,
+            'collision_avoidance': ca_percentage,
+            'number_of_deadlocks': np.mean(deadlock_info) * args.num_agents,
+            'constraint_violations': num_violations,
+            'compute_time': end_time - start_time
+        }
+
+        df = pd.DataFrame([mydata])
+        if not os.path.exists('repo_data'):
+                os.makedirs('repo_data')
+        if not os.path.exists(f'repo_data/{args.env}_{args.num_agents}_agents.csv'):
+            df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', index=False)
+        else:   
+            df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', mode='a', header=False, index=False)
     
 
     collision_tracking = np.clip(collision_tracking, 0, 1)
