@@ -6,3 +6,5 @@ wandb==0.15.11
 do-mpc==4.2.0
 casadi==3.5.3
 imageio==2.15.0
+pandas==1.1.5
+cvxpy==1.1.24
