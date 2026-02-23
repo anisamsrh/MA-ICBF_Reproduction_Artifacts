@@ -13,6 +13,8 @@ import pickle
 import core
 import config
 
+import pandas as pd
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -22,6 +24,7 @@ def parse_args():
     parser.add_argument('--vis', type=int, default=0)
     parser.add_argument('--gpu', type=str, default='0')
     parser.add_argument('--ref', type=str, default=None)
+    parser.add_argument('--env', type=str, choices=['Empty', 'Maze'], default='Maze')
     args = parser.parse_args()
     return args
 
@@ -178,17 +181,18 @@ def main():
         plt.close()
         fig = render_init(args.num_agents)
     # initialize the environment
-    scene = core.Maze(args.num_agents, max_steps=args.max_steps)
+    scene = core.Empty(args.num_agents, max_steps=args.max_steps) if args.env == 'Empty' else core.Maze(args.num_agents, max_steps=args.max_steps)
     if args.ref is not None:
         scene.read(args.ref)
 
     if not os.path.exists('trajectory'):
         os.mkdir('trajectory')
-    traj_dict = {'ours': [], 'baseline': [], 'obstacles': [np.array(scene.OBSTACLES)]}
+    traj_dict = {'ours': [], 'baseline': []}
     
 
     safety_reward = []
     dist_reward = []
+    u_values= []
  
     for istep in range(config.EVALUATE_STEPS):
         if args.vis > 0:
@@ -197,6 +201,7 @@ def main():
             ax_2 = fig.add_subplot(122, projection='3d')
         safety_ours = []
         safety_baseline = []
+        deadlock_ours = []
 
         scene.reset()
         start_time = time.time()
@@ -208,6 +213,7 @@ def main():
         # we move to a new goal state
 
         collision_per_steps = np.zeros((scene.steps, args.num_agents))
+        deadlock_info = np.zeros(args.num_agents, dtype=np.float32)
 
         for t in range(scene.steps):
             # the goal states
@@ -230,6 +236,17 @@ def main():
                 safety_ratio = np.mean(individual_safety)
                 safety_ratios_epoch.append(safety_ratio)
                 accuracy_lists.append(acc_list_np)
+
+                window_size = 6
+                d = d = np.sqrt(u_np[:, 0]**2 + u_np[:, 1]**2)
+                deadlock_mask = d < 0.01
+                deadlock_ours.append(deadlock_mask)
+                if len(deadlock_ours) > window_size:
+                    deadlock_ours = deadlock_ours[-window_size:]
+                deadlock_window = np.array(deadlock_ours)
+                deadlock_info_window = np.all(deadlock_window, axis=0).astype(np.float32)
+                deadlock_info = np.sum(deadlock_info_window)
+
                 if np.mean(
                     np.linalg.norm(s_np[:, :3] - s_ref_np[:, :3], axis=1)
                     ) < config.DIST_TOLERATE:
@@ -240,11 +257,22 @@ def main():
                 collisions_result = core.dangerous_mask_np(s_np, config.DIST_MIN_CHECK)
                 current_collision = np.any(collisions_result, axis=1)
                 collision_per_steps[t] = np.maximum(collision_per_steps[t], current_collision)
-            
+            u_values.append(u_np.copy())
 
         agents_status = np.any(collision_per_steps, axis=0)
         total_safe_agents = np.sum(agents_status == 0)
         collision_avoidance_percentage = (total_safe_agents / args.num_agents) * 100
+        
+        llimit = 0.2 #[-, +]
+        alimit = 12.0 #[-, +]
+
+        linear_magnitudes = np.linalg.norm(u_np[:, :2], axis=1)
+        linear_violation = linear_magnitudes > llimit
+
+        angular_violation = np.abs(u_np[:, 2]) > alimit
+
+        total_violation_mask = np.logical_or(linear_violation, angular_violation)
+        num_violations = np.sum(total_violation_mask)
 
         safety_reward.append(np.mean(safety_info))
         dist_reward.append(np.mean((np.linalg.norm(
@@ -325,6 +353,22 @@ def main():
 
         print('Evaluation Step: {} | {}, Time: {:.4f}'.format(
             istep + 1, config.EVALUATE_STEPS, end_time - start_time))
+        
+        mydata = {
+            'evaluation_step': istep + 1,
+            'collision_avoidance': collision_avoidance_percentage,
+            'number_of_deadlocks': np.mean(deadlock_info) * args.num_agents,
+            'constraint_violations': num_violations,
+            'compute_time': end_time - start_time
+        }
+
+        df = pd.DataFrame([mydata])
+        if not os.path.exists('repo_data'):
+                os.makedirs('repo_data')
+        if istep == 0:
+            df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', index=False)
+        else:   
+            df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', mode='a', header=False, index=False)
 
     print_accuracy(accuracy_lists)
     print('Distance Error (Learning | Baseline): {:.4f} | {:.4f}'.format(
