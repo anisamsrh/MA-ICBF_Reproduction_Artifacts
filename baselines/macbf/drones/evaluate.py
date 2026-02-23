@@ -206,6 +206,9 @@ def main():
         safety_info = np.zeros(args.num_agents, dtype=np.float32)
         # a scene has a sequence of goal states for each agent. in each scene.step,
         # we move to a new goal state
+
+        collision_per_steps = np.zeros((scene.steps, args.num_agents))
+
         for t in range(scene.steps):
             # the goal states
             s_ref_np = np.concatenate(
@@ -233,6 +236,16 @@ def main():
                     break
 
                 s_traj.append(np.expand_dims(s_np[:, [0, 1, 2, 6, 7]], axis=0))
+
+                collisions_result = core.dangerous_mask_np(s_np, config.DIST_MIN_CHECK)
+                current_collision = np.any(collisions_result, axis=1)
+                collision_per_steps[t] = np.maximum(collision_per_steps[t], current_collision)
+            
+
+        agents_status = np.any(collision_per_steps, axis=0)
+        total_safe_agents = np.sum(agents_status == 0)
+        collision_avoidance_percentage = (total_safe_agents / args.num_agents) * 100
+
         safety_reward.append(np.mean(safety_info))
         dist_reward.append(np.mean((np.linalg.norm(
             s_np[:, :3] - s_ref_np[:, :3], axis=1) < 1.5).astype(np.float32) * 10))
