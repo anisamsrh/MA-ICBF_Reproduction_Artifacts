@@ -312,7 +312,8 @@ def main():
                 ax_1.clear()
                 ax_1.view_init(elev=80, azim=-45)
                 ax_1.axis('off')
-                show_obstacles(scene.OBSTACLES, ax_1)
+                if args.env == 'Maze':
+                    show_obstacles(scene.OBSTACLES, ax_1)
                 j_ours = min(j, s_traj_ours.shape[0]-1)
                 s_np = s_traj_ours[j_ours]
                 safety = safety_ours[j_ours]
@@ -330,7 +331,8 @@ def main():
                 ax_2.clear()
                 ax_2.view_init(elev=80, azim=-45)
                 ax_2.axis('off')
-                show_obstacles(scene.OBSTACLES, ax_2)
+                if args.env == 'Maze':
+                    show_obstacles(scene.OBSTACLES, ax_2)
                 j_baseline = min(j, s_traj_baseline.shape[0]-1)
                 s_np = s_traj_baseline[j_baseline]
                 safety = safety_baseline[j_baseline]
