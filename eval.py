@@ -616,7 +616,9 @@ def main():
             'collision_avoidance': ca_percentage,
             'number_of_deadlocks': np.mean(deadlock_info) * args.num_agents,
             'constraint_violations': num_violations,
-            'compute_time': end_time - start_time
+            'compute_time': end_time - start_time,
+            'mpc_icbf_trigger_count' : mpc_icbf_trigger_count
+            'collision_resolved_count' : collision_resolved_count
         }
 
         df = pd.DataFrame([mydata])
