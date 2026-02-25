@@ -14,7 +14,7 @@ for a in agents:
     collision_avoidance.append(csv['collision_avoidance'].mean())
     number_of_deadlocks.append(csv['number_of_deadlocks'].sum())
     constraint_violations.append(csv['constraint_violations'].sum())
-    compute_time.append(csv['compute_time'].mean() / a)
+    compute_time.append(csv['compute_time'].mean())
 
 def plot_collision_avoidance(agents, data, env='Empty'):
     plt.figure(figsize=(8, 5))
@@ -27,7 +27,7 @@ def plot_collision_avoidance(agents, data, env='Empty'):
     # plt.yticks(np.arange(20, 101, 20)) 
     plt.title(f'{env} environment')
     # plt.ylim(20, 105)
-    plt.xlim(3, 1100)
+    plt.xlim(7, 1100)
     plt.tight_layout() 
     plt.savefig(f'./repo_vis/{env}_collision_avoidance.png')
 
@@ -42,7 +42,7 @@ def plot_deadlocks(agents, data, env='Empty'):
     # plt.yticks(np.arange(0, 201, 50)) 
     plt.title(f'{env} environment')
     # plt.ylim(0, 210)
-    plt.xlim(3, 1100)
+    plt.xlim(7, 1100)
     plt.tight_layout() 
     plt.savefig(f'./repo_vis/{env}_deadlocks.png')
 
@@ -57,7 +57,7 @@ def plot_constraint_violations(agents, data, env='Empty'):
     # plt.yticks(np.arange(0, 501, 100))
     plt.title(f'{env} environment')
     # plt.ylim(0, 530)
-    plt.xlim(3, 1100)
+    plt.xlim(7, 1100)
     plt.tight_layout() 
     plt.savefig(f'./repo_vis/{env}_constraint_violations.png')
 
@@ -69,10 +69,10 @@ def plot_compute_time(agents, data, env='Empty'):
     plt.grid(True, which="both", ls="--", alpha=0.5) 
     plt.xlabel('Number of Agents', fontweight='bold')
     plt.ylabel('Computational Time (s)', fontweight='bold')
-    plt.yticks(np.arange(0, 41, 10)) 
+    # plt.yticks(np.arange(0, 41, 10)) 
     plt.title(f'{env} environment')
-    plt.ylim(0, 43)
-    plt.xlim(3, 1100)
+    # plt.ylim(0, 43)
+    plt.xlim(7, 1100)
     plt.tight_layout() 
     plt.savefig(f'./repo_vis/{env}_compute_time.png')
 
@@ -92,7 +92,7 @@ for a in agents:
     collision_avoidance.append(csv['collision_avoidance'].mean())
     number_of_deadlocks.append(csv['number_of_deadlocks'].sum())
     constraint_violations.append(csv['constraint_violations'].sum())
-    compute_time.append(csv['compute_time'].mean() / a)
+    compute_time.append(csv['compute_time'].mean())
 
 plot_collision_avoidance(agents, collision_avoidance, env='Empty')
 plot_deadlocks(agents, number_of_deadlocks, env='Empty')   
