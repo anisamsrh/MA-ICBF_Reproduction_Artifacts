@@ -12,4 +12,6 @@ python evaluate.py --num_agents 256 --model_path models/model_save --env Maze --
 python evaluate.py --num_agents 512 --model_path models/model_save --env Maze --vis 1
 python evaluate.py --num_agents 1024 --model_path models/model_save --env Maze --vis 1
 
+source .env
+
 curl -s -X POST https://api.telegram.org/bot$BOT_ID/sendMessage -d chat_id=$USER_ID -d text="Batch Jobs MACBF End: All Evaluation Completed for Maze Environment"

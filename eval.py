@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--gpu', type=str, default='0')
     parser.add_argument('--ref', type=str, default=None)
     parser.add_argument('--env', type=str, choices=['Empty', 'Maze'], default='Maze')
+    parser.add_argument('--saveto', type=str, default='repo_data')
     args = parser.parse_args()
     return args
 
@@ -617,17 +618,19 @@ def main():
             'number_of_deadlocks': np.mean(deadlock_info) * args.num_agents,
             'constraint_violations': num_violations,
             'compute_time': end_time - start_time,
-            'mpc_icbf_trigger_count' : mpc_icbf_trigger_count
+            'mpc_icbf_trigger_count' : mpc_icbf_trigger_count,
+            'collision_resolved_count' : collision_resolved_count,
+            'mpc_icbf_trigger_count' : mpc_icbf_trigger_count,
             'collision_resolved_count' : collision_resolved_count
         }
 
         df = pd.DataFrame([mydata])
-        if not os.path.exists('repo_data'):
-                os.makedirs('repo_data')
+        if not os.path.exists(args.saveto):
+                os.makedirs(args.saveto)
         if istep == 0:
-            df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', index=False)
+            df.to_csv(f'{args.saveto}/{args.env}_{args.num_agents}_agents.csv', index=False)
         else:   
-            df.to_csv(f'repo_data/{args.env}_{args.num_agents}_agents.csv', mode='a', header=False, index=False)
+            df.to_csv(f'{args.saveto}/{args.env}_{args.num_agents}_agents.csv', mode='a', header=False, index=False)
     
 
     collision_tracking = np.clip(collision_tracking, 0, 1)
