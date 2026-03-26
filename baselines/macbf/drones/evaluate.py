@@ -383,8 +383,13 @@ def main():
     print('Safety Reward: {:.4f}, Dist Reward: {:.4f}, Reward: {:.4f}'.format(
         safety_reward, dist_reward, 9 + 0.1 * (safety_reward + dist_reward)))
 
-    pickle.dump(traj_dict, open('trajectory/traj_eval.pkl', 'wb'))
-    scene.write_trajectory('trajectory/env_traj_eval.pkl', traj_dict['ours'])
+    if not os.path.exists('trajectory/traj_pkl'):
+        os.mkdir('trajectory/traj_pkl')
+    if not os.path.exists('trajectory/env_pkl'):
+        os.mkdir('trajectory/env_pkl')
+
+    pickle.dump(traj_dict, open(f'trajectory/traj_pkl/{args.env}_{args.num_agents}_traj_eval.pkl', 'wb'))
+    scene.write_trajectory(f'trajectory/env_pkl/{args.env}_{args.num_agents}_env_traj_eval.pkl', traj_dict['ours'])
 
 
 if __name__ == '__main__':
