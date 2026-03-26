@@ -604,7 +604,7 @@ def main():
                 gif_frames.append(image)
 
             # Save the gif
-            gif_path = os.path.join('trajectory', 'ours_trajectory_32_agents_empty_itr_099_fps_10_trailing_random.gif')
+            gif_path = os.path.join('trajectory', f'ours_trajectory_{args.num_agents}_agents_{args.env}_itr_099_fps_10_trailing_random.gif')
             imageio.mimsave(gif_path, gif_frames, fps=10)
             print(f"GIF saved at: {gif_path}")
 
@@ -660,8 +660,13 @@ def main():
     print('Safety Reward: {:.4f}, Dist Reward: {:.4f}, Reward: {:.4f}'.format(
         safety_reward, dist_reward, 9 + 0.1 * (safety_reward + dist_reward)))
 
-    pickle.dump(traj_dict, open('trajectory/traj_eval.pkl', 'wb'))
-    scene.write_trajectory('trajectory/env_traj_eval.pkl', traj_dict['ours'])
+    if not os.path.exists('trajectory/traj_pkl'):
+        os.mkdir('trajectory/traj_pkl')
+    if not os.path.exists('trajectory/env_pkl'):
+        os.mkdir('trajectory/env_pkl')
+
+    pickle.dump(traj_dict, open(f'trajectory/traj_pkl/{args.env}_{args.num_agents}_agents_traj_eval.pkl', 'wb'))
+    scene.write_trajectory(f'trajectory/env_pkl/{args.env}_{args.num_agents}_agents_traj_eval.pkl', traj_dict['ours'])
 
 
 
