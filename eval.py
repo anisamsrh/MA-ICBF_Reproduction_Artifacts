@@ -311,8 +311,6 @@ def main():
             s_np[:, :3] - s_ref_np[:, :3], axis=1) < 1.5).astype(np.float32) * 10))
         dist_errors.append(
             np.mean(np.linalg.norm(s_np[:, :3] - s_ref_np[:, :3], axis=1)))
-        
-
 
         def predict_collision(s_np, dsdt):
                 s_np_next = s_np + dsdt * config.TIME_STEP_EVAL
@@ -355,10 +353,6 @@ def main():
 
             model.setup()
             return model
-        
-
-
-
 
         def setup_mpc(model,s_np_i, s_np):
             """
@@ -538,8 +532,6 @@ def main():
    
         num_trails = 16  
         alpha_values = np.linspace(0.1, 1.0, num_trails) 
-
-        
 
         if args.vis > 0:
 

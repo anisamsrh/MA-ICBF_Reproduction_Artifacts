@@ -1,6 +1,5 @@
 trajectory/
 csv_data/
-repo_data/
-repo_data_novis/
-repo_vis/
+repo_data*/
+repo_vis*/
 .env
